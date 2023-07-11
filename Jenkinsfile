@@ -1,61 +1,36 @@
 pipeline {
-    agent { label 'ec2Agent' }
-    tools {nodejs "node16" }
+    agent any
+    tools {nodejs "node16"}
     environment {
         NODE_ENV='production'
     }
-    
-  
+
     stages {
-       
         stage('source') {
             steps {
-               checkout scm
-               sh 'ls -la'
+                git 'https://github.com/vivechanchanny/aws_codebuild_codedeploy_nodeJs_demo.git'
+                echo "index.js file content"
+                sh 'cat index.js'
             }
-            
         }
-        
-         stage('build') {
-             environment{
-                 NODE_ENV='StagingGitTest'
-             }
-             
-            
+        stage('build') {
+            environment {
+                NODE_ENV = 'staging'
+            }
             steps {
-             echo NODE_ENV
-            //  withCredentials([string(credentialsId: 'e8f8ff88-49e0-433a-928d-36a518cd30d6', variable: 'secver')]) {
-            //     // some block
-            //     echo secver
-            // }
-            sh 'npm install'
+                echo "node modules setup"
+                echo NODE_ENV
+                withCredentials([string(credentialsId: 'aa9386d0-0456-4f6c-88e4-f8f5922acca0', variable: 'sec')]) {
+                    // some block
+                    echo sec
+                }
+                sh 'npm install'
             }
-            
         }
-        
-        //  stage('saveArtifact') {
-        //     steps {
-        //       archiveArtifacts artifacts: '**', followSymlinks: false
-        //     }
-            
-        // }
-        
-        
-        
+        stage("saveArtifact") {
+            steps {
+                archiveArtifacts artifacts: '**', followSymlinks: false
+            }
+        }
     }
-
-    post {  
-         always {  
-             echo 'This will always run'  
-         }  
-         success {  
-             echo 'This will run only if successful'  
-         }  
-         failure {  
-             mail bcc: '', body: "<b>Example</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL de build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "foo@foomail.com";  
-         }  
-         unstable {  
-             echo 'This will run only if the run was marked as unstable'  
-         }   
-     }
 }
