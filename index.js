@@ -5,7 +5,7 @@ const config = require('config')
 console.log(config);
 
 app.get('/', (req, res) => {
-  res.send('Hello World v2 channy now you are visible now! version 001 ')
+  res.send('Hello World v2 channy now you are visible now! version 002 ')
 })
 
 app.get('/status', (req, res) => {
